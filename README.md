@@ -61,3 +61,14 @@ You can then access the application through the following URL:
 http://localhost/bzs-salon-server/
 ~~~
 
+### Routing url with yii serve
+Run the following command (if you use xampp for other projects it is recommended that you use yii serve on a different port than xampp to avoid future problems):
+
+```php yii serve --port=8012```
+
+You can then access the application through the following URL:
+~~~
+http://localhost:8012/
+~~~
+
+
