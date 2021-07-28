@@ -30,7 +30,7 @@ CONFIGURATION
 -------------
 
 ### Routing url with xampp
-In ```C:\xampp\apache\conf\extra\httpd-vhosts.conf``` add the following:
+In ```C:\xampp\apache\conf\httpd.conf``` add the following:
 ```
 Alias /bzs-salon-server "C:/xampp/htdocs/bzs-salon-server/web"
 <Directory "C:/xampp/htdocs/bzs-salon-server/web">
