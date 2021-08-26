@@ -28,4 +28,8 @@ class TesteController extends Controller
         $teste = System::findOne(1);
         return $this->sendJson($teste);
     }
+
+    public function actionPing(){
+        return $this->sendJson('pong');
+    }
 }
