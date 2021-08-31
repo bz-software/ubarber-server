@@ -20,6 +20,7 @@ use Yii;
  * @property string $sys_logo
  * @property string $sys_data_inicio
  * @property int $sys_excluido
+ * @property int $sys_cliente
  */
 class System extends \yii\db\ActiveRecord
 {
@@ -37,7 +38,7 @@ class System extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['sys_nome_empresa', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_uf', 'sys_bairro', 'sys_endereco', 'sys_numero', 'sys_complemento', 'sys_logo', 'sys_data_inicio', 'sys_excluido'], 'required'],
+            [['sys_nome_empresa', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_uf', 'sys_bairro', 'sys_endereco'], 'required', 'message' => 'Campo obrigatório'],
             [['sys_data_inicio'], 'safe'],
             [['sys_excluido'], 'integer'],
             [['sys_nome_empresa', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_bairro', 'sys_endereco', 'sys_complemento', 'sys_logo'], 'string', 'max' => 150],
