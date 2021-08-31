@@ -34,7 +34,7 @@ class Clientes extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['cli_nome', 'cli_telefone', 'cli_email', 'cli_excluido', 'cli_data_criacao', 'cli_data_altera'], 'required'],
+            [['cli_nome', 'cli_email'], 'required', 'message' => 'Campo obrigatório'],
             [['cli_excluido'], 'integer'],
             [['cli_data_criacao', 'cli_data_altera'], 'safe'],
             [['cli_nome', 'cli_telefone', 'cli_email', 'cli_avatar'], 'string', 'max' => 150],
