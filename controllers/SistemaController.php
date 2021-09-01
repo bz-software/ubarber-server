@@ -41,22 +41,35 @@ class SistemaController extends Controller{
         $Sistema->validate();
         
         if(!$Clientes->errors && !$Sistema->errors){
-            // $Clientes->save();
+            $clientePorEmail = Clientes::find()->where(['cli_email' => $Clientes->cli_email])->one();
+            $sistemaPorDominio = System::find()->where(['sys_dominio' => $Sistema->sys_dominio])->one();
 
-            // $Sistema->sys_cliente = $Clientes->cli_id;
-            // $Sistema->save();
-            // return throw new \yii\web\HttpException(200);
+            if(!empty($clientePorEmail)){                
+                $Clientes->addError('cli_email', "Já existe um usuário cadastrado com o e-mail informado");
+            }
 
-            return $this->sendJson( [
-                'message' => ['200']
-            ]);
-        }else {
-            return $this->sendJson( [
-                'errors' => [
-                    'clientes' => $Clientes->getFirstErrors(), 
-                    'system' => $Sistema->getFirstErrors()
-                ]
-            ]);
+            if(!empty($sistemaPorDominio)){
+                $Sistema->addError('sys_dominio', "Já existe uma empresa cadastrada com o domínio informado");
+            }
+            
+            if(!$Clientes->errors && !$Sistema->errors){  
+                $Clientes->save();
+
+                $Sistema->sys_cliente = $Clientes->cli_id;
+                $Sistema->save();
+
+                return $this->sendJson( [
+                    'message' => ['200'],
+                    'cli_id' => $Clientes->cli_id
+                ]);
+            }
         }
+
+        return $this->sendJson( [
+            'errors' => [
+                'clientes' => $Clientes->getFirstErrors(), 
+                'system' => $Sistema->getFirstErrors()
+            ]
+        ]);
     }
 }
