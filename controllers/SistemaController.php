@@ -6,14 +6,12 @@ use Yii;
 use yii\base\Controller;
 use app\models\System;
 use app\models\Clientes;
+use app\helpers\ControllerHelper;
 
 class SistemaController extends Controller{
 
     public function sendJson($data){
-        $response = Yii::$app->response;
-        $response->format = \yii\web\Response::FORMAT_JSON;
-        $response->data = $data;
-        return $response;
+        return ControllerHelper::sendJson($data);
     }
 
     public function behaviors(){
@@ -47,11 +45,17 @@ class SistemaController extends Controller{
 
             // $Sistema->sys_cliente = $Clientes->cli_id;
             // $Sistema->save();
-            return throw new \yii\web\HttpException(200);
+            // return throw new \yii\web\HttpException(200);
+
+            return $this->sendJson( [
+                'message' => ['200']
+            ]);
         }else {
             return $this->sendJson( [
-                'Clientes' => $Clientes->errors, 
-                'Sistemas' => $Sistema->errors
+                'errors' => [
+                    'clientes' => $Clientes->getFirstErrors(), 
+                    'system' => $Sistema->getFirstErrors()
+                ]
             ]);
         }
     }
