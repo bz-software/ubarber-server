@@ -1,0 +1,15 @@
+<?php
+
+namespace app\helpers;
+
+use Yii;
+
+class ControllerHelper {
+    public static function sendJson($data){
+        $response = Yii::$app->response;
+        $response->format = \yii\web\Response::FORMAT_JSON;
+        $response->data = $data;
+        return $response;
+    }
+}
+
