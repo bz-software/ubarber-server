@@ -43,6 +43,11 @@ class SistemaController extends Controller{
         if(!$Clientes->errors && !$Sistema->errors){
             $clientePorEmail = Clientes::find()->where(['cli_email' => $Clientes->cli_email])->one();
             $sistemaPorDominio = System::find()->where(['sys_dominio' => $Sistema->sys_dominio])->one();
+            $sistemaPorCnpj = System::find()->where(['sys_cnpj' => $Sistema->sys_cnpj])->one();
+
+            if(!empty($sistemaPorCnpj)){
+                $Sistema->addError('sys_cnpj', "Já existe uma empresa cadastrada com o CNPJ informado");
+            }
 
             if(!empty($clientePorEmail)){                
                 $Clientes->addError('cli_email', "Já existe um usuário cadastrado com o e-mail informado");
