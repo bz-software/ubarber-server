@@ -72,4 +72,14 @@ class SistemaController extends Controller{
             ]
         ]);
     }
+
+    public function actionBuscar(){
+        $dominio = strtolower(Yii::$app->request->post('domain')); 
+        $sistema = System::find()
+                ->where(['sys_dominio' => $dominio])
+                ->andWhere(['sys_excluido' => 0])
+                ->one();
+
+        return $this->sendJson(['sysData' => $sistema]);
+    }
 }
