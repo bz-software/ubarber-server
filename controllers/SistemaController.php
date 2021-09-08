@@ -84,7 +84,10 @@ class SistemaController extends Controller{
                 ->where(['sys_dominio' => $dominio])
                 ->andWhere(['sys_excluido' => 0])
                 ->one();
-
-        return $this->sendJson(['sysData' => $sistema]);
+        if(!empty($sistema)){
+            return $this->sendJson(['sysData' => $sistema]);
+        }else{
+            return  $this->sendJson(['error' => 'not-found']);
+        }
     }
 }
