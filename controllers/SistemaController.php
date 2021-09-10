@@ -28,6 +28,7 @@ class SistemaController extends Controller{
     }
 
     public function actionCadastrar(){
+       
         $Clientes = new Clientes();
         $Sistema = new System();
         $requisicao = Yii::$app->request->post('dados');
@@ -58,8 +59,11 @@ class SistemaController extends Controller{
             }
             
             if(!$Clientes->errors && !$Sistema->errors){  
+                $Clientes->cli_senha = password_hash($Clientes->cli_senha, PASSWORD_DEFAULT);
+                $Sistema->sys_capa = $_ENV["BASE_URL"]."public/assets/imgs/cover/default.png";
+                $Sistema->sys_logo = $_ENV["BASE_URL"]."public/assets/imgs/avatar/default.png";
                 $Clientes->save();
-
+            
                 $Sistema->sys_cliente = $Clientes->cli_id;
                 $Sistema->save();
 
