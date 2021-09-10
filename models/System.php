@@ -22,6 +22,7 @@ use Yii;
  * @property int $sys_excluido
  * @property int $sys_cliente
  * @property string $sys_cnpj
+ * @property string $sys_capa
  */
 class System extends \yii\db\ActiveRecord
 {
@@ -42,7 +43,7 @@ class System extends \yii\db\ActiveRecord
             [['sys_nome_empresa', 'sys_cnpj', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_uf', 'sys_bairro', 'sys_endereco'], 'required', 'message' => 'Campo obrigatório'],
             [['sys_data_inicio'], 'safe'],
             [['sys_excluido'], 'integer'],
-            [['sys_nome_empresa', 'sys_cnpj', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_bairro', 'sys_endereco', 'sys_complemento', 'sys_logo'], 'string', 'max' => 150],
+            [['sys_nome_empresa', 'sys_cnpj', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_bairro', 'sys_endereco', 'sys_complemento', 'sys_logo', 'sys_capa'], 'string', 'max' => 150],
             [['sys_uf'], 'string', 'max' => 2],
             [['sys_numero'], 'string', 'max' => 3],
         ];
@@ -68,6 +69,7 @@ class System extends \yii\db\ActiveRecord
             'sys_logo' => 'logo',
             'sys_data_inicio' => 'dataInicio',
             'sys_excluido' => 'excluido',
+            'sys_capa' => 'capa'
         ];
     }
 

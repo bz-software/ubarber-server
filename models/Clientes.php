@@ -15,6 +15,7 @@ use Yii;
  * @property int $cli_excluido
  * @property string $cli_data_criacao
  * @property string $cli_data_altera
+ * @property string $cli_senha
  *
  * @property System[] $systems
  */
@@ -34,10 +35,11 @@ class Clientes extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['cli_nome', 'cli_email'], 'required', 'message' => 'Campo obrigatório'],
+            [['cli_nome', 'cli_senha', 'cli_email'], 'required', 'message' => 'Campo obrigatório'],
             [['cli_excluido'], 'integer'],
             [['cli_data_criacao', 'cli_data_altera'], 'safe'],
-            [['cli_nome', 'cli_telefone', 'cli_email', 'cli_avatar'], 'string', 'max' => 150],
+            [['cli_nome', 'cli_telefone', 'cli_email', 'cli_avatar',], 'string', 'max' => 150],
+            [['cli_senha'],'string', 'max' => 250],
         ];
     }
 
@@ -55,6 +57,7 @@ class Clientes extends \yii\db\ActiveRecord
             'cli_excluido' => 'Cli Excluido',
             'cli_data_criacao' => 'Cli Data Criacao',
             'cli_data_altera' => 'Cli Data Altera',
+            'cli_senha' => 'Senha',
         ];
     }
 
