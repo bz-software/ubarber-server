@@ -29,8 +29,14 @@ phpunit.phar
 tests/_output/*
 tests/_support/_generated
 
-#vagrant folder
+# vagrant folder
 /.vagrant
 
-#variavel de ambiente
+# variavel de ambiente
 .env
+
+# foto do avatar
+/web/imgs/avatar/*
+
+# foto de capa
+/web/imgs/cover/*
