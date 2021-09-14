@@ -114,4 +114,18 @@ class SistemaController extends Controller{
 
         return $this->sendJson(['bairros' => $bairros]);
     }
+
+    public function actionSistemas(){
+        $cidade = Yii::$app->request->post('cidade');
+        $bairro = Yii::$app->request->post('bairro');
+
+        $sistemas = System::find()
+                    ->select(['sys_nome_empresa', 'sys_dominio', 'sys_endereco'])
+                    ->where(['sys_cidade' => $cidade])
+                    ->andWhere(['sys_bairro' => $bairro])
+                    ->orderBy(['sys_nome_empresa' => SORT_ASC])
+                    ->all();
+
+        return $this->sendJson(['sistemas' => $sistemas]);
+    }
 }
