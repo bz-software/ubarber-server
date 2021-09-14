@@ -60,8 +60,8 @@ class SistemaController extends Controller{
             
             if(!$Clientes->errors && !$Sistema->errors){  
                 $Clientes->cli_senha = password_hash($Clientes->cli_senha, PASSWORD_DEFAULT);
-                $Sistema->sys_capa = $_ENV["BASE_URL"]."public/assets/imgs/cover/default.png";
-                $Sistema->sys_logo = $_ENV["BASE_URL"]."public/assets/imgs/avatar/default.png";
+                $Sistema->sys_capa = "imgs/cover/default.jpg";
+                $Sistema->sys_logo = "imgs/avatar/default.jpg";
                 $Clientes->save();
             
                 $Sistema->sys_cliente = $Clientes->cli_id;
@@ -93,5 +93,25 @@ class SistemaController extends Controller{
         }else{
             return  $this->sendJson(['error' => 'not-found']);
         }
+    }
+
+    public function actionEstados(){
+        $estados = System::find()->select(['sys_uf'])->groupBy(['sys_uf'])->orderBy(['sys_uf' => SORT_ASC])->all();
+
+        return $this->sendJson(['estados' => $estados]);
+    }
+
+    public function actionCidades(){
+        $estado = Yii::$app->request->post('estado');
+        $cidades = System::find()->select(['sys_cidade'])->where(['sys_uf' => $estado])->groupBy(['sys_cidade'])->orderBy(['sys_cidade' => SORT_ASC])->all();
+
+        return $this->sendJson(['cidades' => $cidades]);
+    }
+
+    public function actionBairros(){
+        $cidade = Yii::$app->request->post('cidade');
+        $bairros = System::find()->select(['sys_bairro'])->where(['sys_cidade' => $cidade])->groupBy(['sys_bairro'])->orderBy(['sys_bairro' => SORT_ASC])->all();
+
+        return $this->sendJson(['bairros' => $bairros]);
     }
 }
