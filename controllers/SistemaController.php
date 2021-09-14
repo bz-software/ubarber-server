@@ -60,8 +60,8 @@ class SistemaController extends Controller{
             
             if(!$Clientes->errors && !$Sistema->errors){  
                 $Clientes->cli_senha = password_hash($Clientes->cli_senha, PASSWORD_DEFAULT);
-                $Sistema->sys_capa = $_ENV["BASE_URL"]."public/assets/imgs/cover/default.png";
-                $Sistema->sys_logo = $_ENV["BASE_URL"]."public/assets/imgs/avatar/default.png";
+                $Sistema->sys_capa = "imgs/cover/default.jpg";
+                $Sistema->sys_logo = "imgs/avatar/default.jpg";
                 $Clientes->save();
             
                 $Sistema->sys_cliente = $Clientes->cli_id;
