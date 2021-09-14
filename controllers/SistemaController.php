@@ -94,4 +94,24 @@ class SistemaController extends Controller{
             return  $this->sendJson(['error' => 'not-found']);
         }
     }
+
+    public function actionEstados(){
+        $estados = System::find()->select(['sys_uf'])->groupBy(['sys_uf'])->orderBy(['sys_uf' => SORT_ASC])->all();
+
+        return $this->sendJson(['estados' => $estados]);
+    }
+
+    public function actionCidades(){
+        $estado = Yii::$app->request->post('estado');
+        $cidades = System::find()->select(['sys_cidade'])->where(['sys_uf' => $estado])->groupBy(['sys_cidade'])->orderBy(['sys_cidade' => SORT_ASC])->all();
+
+        return $this->sendJson(['cidades' => $cidades]);
+    }
+
+    public function actionBairros(){
+        $cidade = Yii::$app->request->post('cidade');
+        $bairros = System::find()->select(['sys_bairro'])->where(['sys_cidade' => $cidade])->groupBy(['sys_bairro'])->orderBy(['sys_bairro' => SORT_ASC])->all();
+
+        return $this->sendJson(['bairros' => $bairros]);
+    }
 }
