@@ -73,6 +73,11 @@ class System extends \yii\db\ActiveRecord
         ];
     }
 
+    public static function findByClienteId($id){
+        return self::find()->where(['sys_cliente' => $id])
+               ->andWhere(['!=','sys_excluido', 1])->one();
+    }
+
     /**
      * {@inheritdoc}
      * @return queries\SystemQuery the active query used by this AR class.
