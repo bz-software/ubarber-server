@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "clientes".
@@ -16,10 +17,12 @@ use Yii;
  * @property string $cli_data_criacao
  * @property string $cli_data_altera
  * @property string $cli_senha
+ * @property string $cli_access_token
+ * @property string $cli_auth_key
  *
  * @property System[] $systems
  */
-class Clientes extends \yii\db\ActiveRecord
+class Clientes extends \yii\db\ActiveRecord implements IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -39,7 +42,7 @@ class Clientes extends \yii\db\ActiveRecord
             [['cli_excluido'], 'integer'],
             [['cli_data_criacao', 'cli_data_altera'], 'safe'],
             [['cli_nome', 'cli_telefone', 'cli_email', 'cli_avatar',], 'string', 'max' => 150],
-            [['cli_senha'],'string', 'max' => 250],
+            [['cli_senha', 'cli_access_token', 'cli_auth_key'],'string', 'max' => 250],
         ];
     }
 
@@ -58,9 +61,42 @@ class Clientes extends \yii\db\ActiveRecord
             'cli_data_criacao' => 'Cli Data Criacao',
             'cli_data_altera' => 'Cli Data Altera',
             'cli_senha' => 'Senha',
+            'cli_access_token' => "Access Token",
+            'cli_auth_key' => "Auth Key"
         ];
     }
 
+    public static function findIdentity($id){
+        return self::findOne($id);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null){
+        return self::findOne(['cli_access_token' => $token]);
+    }
+
+    public static function findByEmail($email){
+        return self::findOne(['cli_email' => $email]);
+    }
+
+    public function getId(){
+        return $this->cli_id;
+    }
+
+    public function getAuthKey(){
+        // return $this->cli_auth_key;
+        return null;
+    }
+
+    public function validateAuthKey($authKey){
+        // return $this->cli_auth_key;
+        return null;
+    }
+
+    public function validatePassword($passWord){
+        return password_verify($passWord, $this->cli_senha);
+    }
+
+    
     /**
      * Gets query for [[Systems]].
      *
