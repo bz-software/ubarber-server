@@ -7,6 +7,7 @@ use yii\base\Controller;
 use app\models\System;
 use app\models\Clientes;
 use app\helpers\ControllerHelper;
+use app\models\AuthToken;
 
 class SistemaController extends Controller{
 
@@ -28,14 +29,23 @@ class SistemaController extends Controller{
     }
 
     public function actionCadastrar(){
-       
         $Clientes = new Clientes();
         $Sistema = new System();
         $requisicao = Yii::$app->request->post('dados');
+        $access_token = Yii::$app->request->post('access_token');
+        
+        if(!empty($access_token) && AuthToken::validateToken($access_token)){
+            $identity = AuthToken::findUserByAccessToken($access_token);
+            return $this->registerSystemByAccessToken($identity, $requisicao['system']);
+        }
+
+        if(!empty($access_token) && !AuthToken::validateToken($access_token)){
+            throw new \yii\web\HttpException(401);
+        }
 
         $Clientes->attributes = $requisicao['clientes'];
         $Clientes->validate();
-
+        
         $Sistema->attributes = $requisicao['system'];
         $Sistema->sys_data_inicio = date('Y-m-d');
         $Sistema->sys_excluido = 0;
@@ -80,6 +90,7 @@ class SistemaController extends Controller{
                 'system' => $Sistema->getFirstErrors()
             ]
         ]);
+
     }
 
     public function actionBuscar(){
@@ -127,5 +138,46 @@ class SistemaController extends Controller{
                     ->all();
 
         return $this->sendJson(['sistemas' => $sistemas]);
+    }
+
+    private function registerSystemByAccessToken($identity, $sistema){
+        $Sistema = new System();
+
+        $Sistema->attributes = $sistema;
+        $Sistema->sys_data_inicio = date('Y-m-d');
+        $Sistema->sys_excluido = 0;
+        $Sistema->validate();
+
+        if(!$Sistema->errors){
+            $sistemaPorDominio = System::find()->where(['sys_dominio' => $Sistema->sys_dominio])->one();
+            $sistemaPorCnpj = System::find()->where(['sys_cnpj' => $Sistema->sys_cnpj])->one();
+
+            if(!empty($sistemaPorCnpj)){
+                $Sistema->addError('sys_cnpj', "Já existe uma empresa cadastrada com o CNPJ informado");
+            }
+
+            if(!empty($sistemaPorDominio)){
+                $Sistema->addError('sys_dominio', "Já existe uma empresa cadastrada com o domínio informado");
+            }
+
+            if(!$Sistema->errors){
+                $Sistema->sys_capa = "imgs/cover/default.jpg";
+                $Sistema->sys_logo = "imgs/avatar/default.jpg";
+            
+                $Sistema->sys_cliente = $identity->cli_id;
+                $Sistema->save();
+
+                return $this->sendJson( [
+                    'message' => ['200'],
+                    'cli_id' => $identity->cli_id,
+                ]);
+            }
+        }
+
+        return $this->sendJson( [
+            'errors' => [
+                'system' => $Sistema->getFirstErrors()
+            ]
+        ]);
     }
 }

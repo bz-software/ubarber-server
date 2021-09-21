@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Controller;
 use app\models\Clientes;
 use app\helpers\ControllerHelper;
+use app\helpers\resources\ClientesResource;
 use app\models\AuthToken;
 use app\models\System;
 
@@ -63,6 +64,35 @@ class UserController extends Controller{
         
     }
 
+    public function actionLoginCadastro(){
+        $request = Yii::$app->request->post('data');
+        $error = $this->validateLogin($request);
+
+        if(is_array($error)){
+            return $this->sendJson(['error' => $error]);
+        }
+
+        $identity = Clientes::findOne(['cli_email' => $request['cli_email']]);
+        if(!empty($identity)){
+
+            if($identity->validatePassword($request['cli_senha'])){
+
+                Yii::$app->user->login($identity);
+                $auth = AuthToken::setAccessToken($identity->cli_id);
+
+                return $this->sendJson([
+                    'access_token' => $auth->aut_token,
+                    'user_data' => ClientesResource::findOne($identity->cli_id)
+                ]);
+            }else{
+                $this->sendMessage(null, "Senha inválida");
+            }
+
+        }else{
+            $this->sendMessage("E-mail não encontrado", null);
+        }
+    }
+
     public function actionAuth(){
         $access_token = Yii::$app->request->post('access_token');
 
@@ -111,7 +141,7 @@ class UserController extends Controller{
         if(!isset($data['cli_senha']) || empty($data['cli_senha'])){
             $messages['cli_senha'] = $message;
         }
-
+        
         if(!empty($messages)){
             return $messages;
         }else{
