@@ -108,13 +108,12 @@ class UserController extends Controller{
 
         if(!empty($access_token) && AuthToken::validateToken($access_token)){
             $identity = AuthToken::findUserByAccessToken($access_token, true);
-            $auth = AuthToken::setAccessToken($identity->cli_id);
             $system = System::findByClienteId($identity->cli_id);
 
             return $this->sendJson([
                 'user_data' => $identity,
                 'system' => $system,
-                'access_token' => $auth->aut_token
+                'access_token' => $access_token
             ]);
         }else{
             throw new \yii\web\HttpException(401);
