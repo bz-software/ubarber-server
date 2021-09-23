@@ -9,9 +9,10 @@ class ClientesResource extends Clientes{
         return [
             "cli_id",
             "cli_nome",
+            "cli_primeiro_nome",
             "cli_telefone",
             "cli_email",
-            "cli_avatar"
+            "cli_avatar",
         ];
     }
 }

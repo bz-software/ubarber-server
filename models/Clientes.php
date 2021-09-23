@@ -10,6 +10,7 @@ use yii\web\IdentityInterface;
  *
  * @property int $cli_id
  * @property string $cli_nome
+ * @property string $cli_primeiro_nome
  * @property string $cli_telefone
  * @property string $cli_email
  * @property string|null $cli_avatar
@@ -36,10 +37,10 @@ class Clientes extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['cli_nome', 'cli_senha', 'cli_email'], 'required', 'message' => 'Campo obrigatório'],
+            [['cli_nome', 'cli_senha', 'cli_email', 'cli_primeiro_nome'], 'required', 'message' => 'Campo obrigatório'],
             [['cli_excluido'], 'integer'],
             [['cli_data_criacao', 'cli_data_altera'], 'safe'],
-            [['cli_nome', 'cli_telefone', 'cli_email', 'cli_avatar',], 'string', 'max' => 150],
+            [['cli_nome', 'cli_telefone', 'cli_email', 'cli_avatar', 'cli_primeiro_nome',], 'string', 'max' => 150],
             [['cli_senha'],'string', 'max' => 250],
         ];
     }
@@ -52,6 +53,7 @@ class Clientes extends \yii\db\ActiveRecord implements IdentityInterface
         return [
             'cli_id' => 'Cli ID',
             'cli_nome' => 'Cli Nome',
+            'cli_primeiro_nome' => 'Primeiro nome',
             'cli_telefone' => 'Cli Telefone',
             'cli_email' => 'Cli Email',
             'cli_avatar' => 'Cli Avatar',
@@ -83,6 +85,11 @@ class Clientes extends \yii\db\ActiveRecord implements IdentityInterface
     public function getAuthKey(){
         // return $this->cli_auth_key;
         return null;
+    }
+
+    public static function getPrimeiroNome($nomeCompleto){
+        $aNomeCompleto = explode(' ', $nomeCompleto);
+        return $aNomeCompleto[0];
     }
 
     public function validateAuthKey($authKey){
