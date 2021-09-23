@@ -70,6 +70,7 @@ class SistemaController extends Controller{
             
             if(!$Clientes->errors && !$Sistema->errors){  
                 $Clientes->cli_senha = password_hash($Clientes->cli_senha, PASSWORD_DEFAULT);
+                $Clientes->cli_primeiro_nome = Clientes::getPrimeiroNome($Clientes->cli_nome);
                 $Sistema->sys_capa = "imgs/cover/default.jpg";
                 $Sistema->sys_logo = "imgs/avatar/default.jpg";
                 $Clientes->save();
