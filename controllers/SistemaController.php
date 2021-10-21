@@ -8,6 +8,7 @@ use app\models\System;
 use app\models\Clientes;
 use app\helpers\ControllerHelper;
 use app\models\AuthToken;
+use app\models\UrlCadastroFuncionarios;
 
 class SistemaController extends Controller{
 
@@ -197,5 +198,28 @@ class SistemaController extends Controller{
                 'system' => $Sistema->getFirstErrors()
             ]
         ]);
+    }
+
+    public function actionUrlCadastroDisponivel(){
+        $id = Yii::$app->request->post('id');
+
+        $urlDisponiveis = UrlCadastroFuncionarios::find()
+                          ->where(['ucf_system' => $id])
+                          ->andWhere(['>', 'ucf_expire', strtotime(date('Y-m-d H:i:s'))])
+                          ->count();
+
+        return $this->sendJson([
+            'cadastrosRestantes' => $urlDisponiveis
+        ]);
+    }
+
+    public static function urlCadastroDisponivel($id){
+        $urlDisponiveis = UrlCadastroFuncionarios::find()
+                          ->where(['ucf_system' => $id])
+                          ->andWhere(['IS', 'ucf_usuario_cadastrado', null ])
+                          ->andWhere(['>', 'ucf_expire', strtotime(date('Y-m-d H:i:s'))])
+                          ->count();
+
+        return $urlDisponiveis;
     }
 }
