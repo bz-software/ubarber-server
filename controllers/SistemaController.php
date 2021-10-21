@@ -108,6 +108,22 @@ class SistemaController extends Controller{
         }
     }
 
+    public function actionBuscarPorUsuario(){
+        $token = Yii::$app->request->post('token');
+        if(!empty($token) && AuthToken::validateToken($token)){
+            $identity = AuthToken::findUserByAccessToken($token);
+            $sistemas = System::find()->select(['sys_id', 'sys_nome_empresa'])->where(['sys_cliente'=>$identity['cli_id']])->all();
+            return $this->sendJson([
+                'sistemas'=>$sistemas
+            ]);
+        }
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
+            throw new \yii\web\HttpException(401);
+        }
+
+    }
+
     public function actionEstados(){
         $estados = System::find()->select(['sys_uf'])->groupBy(['sys_uf'])->orderBy(['sys_uf' => SORT_ASC])->all();
 
