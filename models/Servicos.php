@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\helpers\Formatter;
 use Yii;
 
 /**
@@ -62,6 +63,25 @@ class Servicos extends \yii\db\ActiveRecord
             'sys_excluido' => 'Sys Excluido',
             'sys_data_inclusao' => 'Sys Data Inclusao',
         ];
+    }
+
+
+    /**
+     * Altera os dados para mostrar corretamente no front end
+     * @param bool $one True caso seja apenas um registro
+     */
+    public static function formatarParaRetorno($registros, $one = false){
+        if(!empty($registros)){
+            if(!$one){
+                foreach($registros as $key => $registro){
+                    $registros[$key]['svs_preco'] = Formatter::floatParaReal($registro['svs_preco']);
+                }
+            }else{
+                $registros['svs_preco'] = Formatter::floatParaReal($registros['svs_preco']);
+            }
+
+            return $registros;
+        }
     }
 
     /**

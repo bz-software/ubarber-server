@@ -256,8 +256,59 @@ class SistemaController extends Controller{
         $idSistema = Yii::$app->request->post('idSistema');
 
         return $this->sendJson([
-            'servicos' => $this->buscarServicosPorSistema($idSistema)
+            'servicos' => Servicos::formatarParaRetorno($this->buscarServicosPorSistema($idSistema))
         ]);
+    }
+
+    public function actionBuscarServico(){
+        $idServico = Yii::$app->request->post('id');
+
+        return $this->sendJson([
+            'servico' => Servicos::formatarParaRetorno(Servicos::findOne($idServico), true)
+        ]);
+    }
+
+    public function actionAlterarServico(){
+        $servico = Yii::$app->request->post('servico');
+        $token = Yii::$app->request->post('token');
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
+            throw new \yii\web\HttpException(401);
+        }
+
+        $Servicos = Servicos::findOne($servico['svs_id']);
+
+        if(!empty($Servicos)){
+            $Servicos->attributes = $servico;
+            $Servicos->svs_ativo = $servico['svs_ativo'] == 'true' ? 1 : 0;
+            $Servicos->svs_preco = Formatter::realParaFloat($servico['svs_preco']);
+
+            if(!$Servicos->validate()){
+                return $this->sendJson([
+                    'error' => $Servicos->getFirstErrors()
+                ]);
+            }else{
+                $Servicos->save();
+                
+                return $this->sendJson([
+                    'servicos' => $this->buscarServicosPorSistema($servico['svs_system'])
+                ]);
+            }
+        }
+    }
+
+    public function actionDeletarServico(){
+        $id = Yii::$app->request->post('id');
+        $token = Yii::$app->request->post('token');
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
+            throw new \yii\web\HttpException(401);
+        }
+
+        $Servicos = Servicos::findOne($id);
+        $Servicos->delete();
+
+        throw new \yii\web\HttpException(200);
     }
 
     private function buscarServicosPorSistema($id){
