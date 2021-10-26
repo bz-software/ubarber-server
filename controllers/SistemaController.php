@@ -311,7 +311,7 @@ class SistemaController extends Controller{
         throw new \yii\web\HttpException(200);
     }
 
-    private function buscarServicosPorSistema($id){
+    public static function buscarServicosPorSistema($id){
         return Servicos::find()
                        ->where(['svs_system' => $id])
                        ->andWhere(['=', 'sys_excluido', 0])
