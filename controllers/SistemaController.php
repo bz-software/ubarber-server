@@ -346,14 +346,18 @@ class SistemaController extends Controller{
 
             if($avatar->save()){
                 return $this->sendJson([
-                    'message' => 'done'
+                    'file' => ControllerHelper::pathToSystemAvatar() . $avatar->avt_caminho
                 ]);
             }else{
                 return $this->sendJson([
                     'error' => $avatar->getErrors(),
                 ]);
             }
-            
+        }else{
+            $errors = $AvatarUpload->getFirstErrors();
+            return $this->sendJson([
+                'error' => reset($errors),
+            ]);
         }
 
         

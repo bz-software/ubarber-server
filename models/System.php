@@ -1,8 +1,11 @@
 <?php
 
 namespace app\models;
+
+use app\helpers\ControllerHelper;
 use Yii;
 use yii\web\UploadedFile;
+use app\models\Avatar;
 
 /**
  * This is the model class for table "system".
@@ -24,6 +27,13 @@ use yii\web\UploadedFile;
  * @property int $sys_cliente
  * @property string $sys_cnpj
  * @property string $sys_capa
+ * 
+ * 
+ * @property Avatar[] $avatars 
+ * @property Funcionarios[] $funcionarios 
+ * @property Servicos[] $servicos 
+ * @property Clientes $sysCliente 
+ * @property UrlCadastroFuncionarios[] $urlCadastroFuncionarios 
  */
 class System extends \yii\db\ActiveRecord
 {
@@ -79,16 +89,65 @@ class System extends \yii\db\ActiveRecord
     }
 
     public static function findByClienteId($id){
-        return self::find()->where(['sys_cliente' => $id])
-               ->andWhere(['!=','sys_excluido', 1])->one();
+        $sistema = self::find()->where(['sys_cliente' => $id])
+        ->andWhere(['!=','sys_excluido', 1])->asArray()->one();
+
+        $sistema['sys_logo'] = !empty(Avatar::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemAvatar() . Avatar::atual($sistema['sys_id']) : $sistema['sys_logo'];
+
+        return $sistema;
+    }
+
+    /**
+    * Gets query for [[Avatars]].
+    *
+    * @return \yii\db\ActiveQuery|AvatarQuery
+    */
+    public function getAvatars(){
+        return $this->hasMany(Avatar::className(), ['avt_sys_id' => 'sys_id']);
+    }
+
+   /**
+    * Gets query for [[Funcionarios]].
+    *
+    * @return \yii\db\ActiveQuery|FuncionariosQuery
+    */
+    public function getFuncionarios(){
+        return $this->hasMany(Funcionarios::className(), ['fun_sys_id' => 'sys_id']);
+    }
+
+   /**
+    * Gets query for [[Servicos]].
+    *
+    * @return \yii\db\ActiveQuery|ServicosQuery
+    */
+    public function getServicos(){
+        return $this->hasMany(Servicos::className(), ['svs_system' => 'sys_id']);
+    }
+
+   /**
+    * Gets query for [[SysCliente]].
+    *
+    * @return \yii\db\ActiveQuery|ClientesQuery
+    */
+    public function getSysCliente(){
+        return $this->hasOne(Clientes::className(), ['cli_id' => 'sys_cliente']);
+    }
+
+   /**
+    * Gets query for [[UrlCadastroFuncionarios]].
+    *
+    * @return \yii\db\ActiveQuery|UrlCadastroFuncionariosQuery
+    */
+    public function getUrlCadastroFuncionarios(){
+        return $this->hasMany(UrlCadastroFuncionarios::className(), ['ucf_system' => 'sys_id']);
     }
 
     /**
      * {@inheritdoc}
      * @return queries\SystemQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
+    */
+    public static function find(){
         return new queries\SystemQuery(get_called_class());
     }
+
 }

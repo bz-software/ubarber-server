@@ -3,6 +3,7 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\web\UploadedFile;
+use app\helpers\ControllerHelper;
 
 class AvatarUpload extends Model
 {
@@ -14,7 +15,16 @@ class AvatarUpload extends Model
     public function rules()
     {
         return [
-            [['imageFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            [
+                ['imageFile'], 'image', 'skipOnEmpty' => true, 'extensions' => 'png, jpg', 
+                'minWidth' => 430, 
+                'underWidth' => "A imagem '{file}' é muito pequena, sua largura não pode ser menor que {limit}px",
+                'minHeight' => 430, 
+                'underHeight' => "A imagem '{file}' é muito pequena, sua altura não pode ser menor que {limit}px",
+                'extensions' => 'jpg, png', 
+                'wrongExtension' => 'Só arquivos com as seguintes extensões são permitidos: {extensions}',
+                'maxSize' => 1024 * 1024 * 2
+            ],
         ];
     }
     
@@ -22,7 +32,7 @@ class AvatarUpload extends Model
     {  
         $path = $idSistema . '_' . md5(date('d-m-Y H:i:s')) . '.' . $this->imageFile->extension;
         if ($this->validate()) {
-            $this->imageFile->saveAs('../web/imgs/system/avatar/' . $path , false);
+            $this->imageFile->saveAs(ControllerHelper::pathToSystemAvatar(true) . $path , false);
             return $path;
         } else {
             return false;

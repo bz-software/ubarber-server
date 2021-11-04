@@ -11,6 +11,7 @@ use app\models\AuthToken;
 use app\models\System;
 use app\controllers\SistemaController;
 use app\models\Servicos;
+use app\models\Avatar;
 
 class UserController extends Controller{
 
@@ -111,13 +112,17 @@ class UserController extends Controller{
         if(!empty($access_token) && AuthToken::validateToken($access_token)){
             $identity = AuthToken::findUserByAccessToken($access_token, true);
             $system = System::findByClienteId($identity->cli_id);
+
+
+            // print_r(System::findByClienteId($identity->cli_id));
+
             $servicos = SistemaController::buscarServicosPorSistema($system['sys_id']);
 
             return $this->sendJson([
                 'user_data' => $identity,
                 'system' => [
                     'data' => $system,
-                    'servicos' => Servicos::formatarParaRetorno($servicos)
+                    'servicos' => Servicos::formatarParaRetorno($servicos),
                 ],
                 'access_token' => $access_token
             ]);

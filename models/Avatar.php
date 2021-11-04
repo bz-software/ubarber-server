@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use phpDocumentor\Reflection\Types\Self_;
 use Yii;
 
 /**
@@ -61,12 +62,19 @@ class Avatar extends \yii\db\ActiveRecord
         ]);
     }
 
+    public static function atual($idSistema){
+        $avatar = self::find()->where(['avt_sys_id' => $idSistema])
+                  ->andWhere(['avt_atual' => 1])->asArray()->one();
+
+        return !empty($avatar) ? $avatar['avt_caminho'] : null;
+    }   
+
     /**
      * Gets query for [[AvtSys]].
      *
      * @return \yii\db\ActiveQuery|SystemQuery
      */
-    public function getAvtSys()
+    public function getSystem()
     {
         return $this->hasOne(System::className(), ['sys_id' => 'avt_sys_id']);
     }

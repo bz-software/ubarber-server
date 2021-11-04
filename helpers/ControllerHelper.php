@@ -11,5 +11,12 @@ class ControllerHelper {
         $response->data = $data;
         return $response;
     }
+
+    public static function pathToSystemAvatar($saving = false){
+        if($saving)
+            return '../web/imgs/system/avatar/';
+        else
+            return 'imgs/system/avatar/';
+    }
 }
 
