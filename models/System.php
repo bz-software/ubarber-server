@@ -2,6 +2,7 @@
 
 namespace app\models;
 use Yii;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "system".
@@ -26,6 +27,9 @@ use Yii;
  */
 class System extends \yii\db\ActiveRecord
 {
+
+    public $avatar;
+
     /**
      * {@inheritdoc}
      */
@@ -46,6 +50,7 @@ class System extends \yii\db\ActiveRecord
             [['sys_nome_empresa', 'sys_cnpj', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_bairro', 'sys_endereco', 'sys_complemento', 'sys_logo', 'sys_capa'], 'string', 'max' => 150],
             [['sys_uf'], 'string', 'max' => 2],
             [['sys_numero'], 'string', 'max' => 3],
+            [['avatar'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
         ];
     }
 
