@@ -38,9 +38,13 @@ tests/_support/_generated
 # foto do avatar
 /web/imgs/system/avatar/*
 /web/imgs/user/avatar/*
-!/web/imgs/user/avatar/default.jpg
-!/web/imgs/system/avatar/default.jpg
-
 
 # foto de capa
 /web/imgs/system/cover/*
+
+# Imagens padrões
+!/web/imgs/user/avatar/default.jpg
+!/web/imgs/system/avatar/default.jpg
+!/web/imgs/system/cover/default.jpg
+
+
