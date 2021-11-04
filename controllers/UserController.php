@@ -126,6 +126,14 @@ class UserController extends Controller{
         }
     }
 
+    public function actionIsLogged(){
+        $token = Yii::$app->request->post('access_token');
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
+            throw new \yii\web\HttpException(401);
+        }
+    }
+
     public function actionLogout(){
         $access_token = Yii::$app->request->post('access_token');
 

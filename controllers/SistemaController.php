@@ -10,6 +10,9 @@ use app\helpers\ControllerHelper;
 use app\models\AuthToken;
 use app\models\Servicos;
 use app\helpers\Formatter;
+use app\models\Avatar;
+use app\models\AvatarUpload;
+use yii\web\UploadedFile;
 use app\models\UrlCadastroFuncionarios;
 
 class SistemaController extends Controller{
@@ -317,5 +320,47 @@ class SistemaController extends Controller{
                        ->andWhere(['=', 'sys_excluido', 0])
                        ->orderBy(['svs_id' => SORT_DESC])
                        ->all();
+    }
+
+    public function actionUploadAvatar(){
+        $token = Yii::$app->request->post('token');
+        $image = $_FILES['file'];
+        $idSistema = Yii::$app->request->post('idSistema');
+
+        $AvatarUpload = new AvatarUpload();
+        $avatar = new Avatar();
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
+            throw new \yii\web\HttpException(401);
+        }
+
+        $AvatarUpload->imageFile = UploadedFile::getInstanceByName('file');
+        $path = $AvatarUpload->upload($idSistema);
+        if($path){
+            Avatar::setTodosNaoAtual($idSistema);
+
+            $avatar->avt_caminho = $path;
+            $avatar->avt_atual = 1;
+            $avatar->avt_data = (string) strtotime(date('d-m-Y H:i:s'));
+            $avatar->avt_sys_id = $idSistema;
+
+            if($avatar->save()){
+                return $this->sendJson([
+                    'message' => 'done'
+                ]);
+            }else{
+                return $this->sendJson([
+                    'error' => $avatar->getErrors(),
+                ]);
+            }
+            
+        }
+
+        
+
+        // return $this->sendJson([
+        //     'data' => Yii::$app->request->post(),
+        //     'file' => $_FILES
+        // ]);
     }
 }
