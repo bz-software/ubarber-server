@@ -98,6 +98,22 @@ class System extends \yii\db\ActiveRecord
         return $sistema;
     }
 
+    public static function findByDominio($dominio){
+        $sistema = self::find()->where(['sys_dominio' => $dominio])
+        ->andWhere(['sys_excluido' => 0])->asArray()->one();
+
+        if(!empty($sistema)){
+            $sistema['sys_logo'] = !empty(Avatar::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemAvatar() . Avatar::atual($sistema['sys_id']) : $sistema['sys_logo'];
+            $sistema['sys_capa'] = !empty(Cover::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemCover() . Cover::atual($sistema['sys_id']) : $sistema['sys_capa'];
+
+            return $sistema;
+        }else{
+            return false;
+        }
+
+
+    }
+
     /**
     * Gets query for [[Avatars]].
     *
