@@ -113,9 +113,6 @@ class UserController extends Controller{
             $identity = AuthToken::findUserByAccessToken($access_token, true);
             $system = System::findByClienteId($identity->cli_id);
 
-
-            // print_r(System::findByClienteId($identity->cli_id));
-
             $servicos = SistemaController::buscarServicosPorSistema($system['sys_id']);
 
             return $this->sendJson([

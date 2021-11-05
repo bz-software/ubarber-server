@@ -93,6 +93,7 @@ class System extends \yii\db\ActiveRecord
         ->andWhere(['!=','sys_excluido', 1])->asArray()->one();
 
         $sistema['sys_logo'] = !empty(Avatar::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemAvatar() . Avatar::atual($sistema['sys_id']) : $sistema['sys_logo'];
+        $sistema['sys_capa'] = !empty(Cover::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemCover() . Cover::atual($sistema['sys_id']) : $sistema['sys_capa'];
 
         return $sistema;
     }
