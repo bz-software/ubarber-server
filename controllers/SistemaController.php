@@ -10,6 +10,11 @@ use app\helpers\ControllerHelper;
 use app\models\AuthToken;
 use app\models\Servicos;
 use app\helpers\Formatter;
+use app\models\Avatar;
+use app\models\AvatarUpload;
+use app\models\Cover;
+use app\models\CoverUpload;
+use yii\web\UploadedFile;
 use app\models\UrlCadastroFuncionarios;
 
 class SistemaController extends Controller{
@@ -74,13 +79,15 @@ class SistemaController extends Controller{
             if(!$Clientes->errors && !$Sistema->errors){  
                 $Clientes->cli_senha = password_hash($Clientes->cli_senha, PASSWORD_DEFAULT);
                 $Clientes->cli_primeiro_nome = Clientes::getPrimeiroNome($Clientes->cli_nome);
-                $Clientes->cli_avatar = "imgs/avatar/default.jpg";
-                $Sistema->sys_capa = "imgs/cover/default.jpg";
-                $Sistema->sys_logo = "imgs/avatar/default-system.jpg";
+                $Clientes->cli_avatar = "imgs/user/avatar/default.jpg";
+                $Sistema->sys_capa = "imgs/system/cover/default.jpg";
+                $Sistema->sys_logo = "imgs/system/avatar/default.jpg";
                 $Clientes->save();
             
                 $Sistema->sys_cliente = $Clientes->cli_id;
                 $Sistema->save();
+
+                $this->setServicosPadroes($Sistema->sys_id);
 
                 return $this->sendJson( [
                     'message' => ['200'],
@@ -98,14 +105,30 @@ class SistemaController extends Controller{
 
     }
 
+    private function setServicosPadroes($idSistema){
+        $servicos = Servicos::servicosPadroes($idSistema);
+
+        foreach($servicos as $servico){
+            $Servicos = new Servicos();
+
+            $Servicos->attributes = $servico;
+            $Servicos->save();
+        }
+    }
+
     public function actionBuscar(){
         $dominio = strtolower(Yii::$app->request->post('domain')); 
-        $sistema = System::find()
-                ->where(['sys_dominio' => $dominio])
-                ->andWhere(['sys_excluido' => 0])
-                ->one();
-        if(!empty($sistema)){
-            return $this->sendJson(['sysData' => $sistema]);
+        $system = System::findByDominio($dominio);
+
+        if(!empty($system)){
+            $servicos = SistemaController::buscarServicosPorSistema($system['sys_id']);
+
+            return $this->sendJson([
+                'system' => [
+                    'data' => $system,
+                    'servicos' => Servicos::formatarParaRetorno($servicos),
+                ],
+            ]);
         }else{
             return  $this->sendJson(['error' => 'not-found']);
         }
@@ -314,8 +337,85 @@ class SistemaController extends Controller{
     public static function buscarServicosPorSistema($id){
         return Servicos::find()
                        ->where(['svs_system' => $id])
-                       ->andWhere(['=', 'sys_excluido', 0])
+                       ->andWhere(['=', 'svs_excluido', 0])
                        ->orderBy(['svs_id' => SORT_DESC])
                        ->all();
+    }
+
+    public function actionUploadAvatar(){
+        $token = Yii::$app->request->post('token');
+        $image = $_FILES['file'];
+        $idSistema = Yii::$app->request->post('idSistema');
+
+        $AvatarUpload = new AvatarUpload();
+        $avatar = new Avatar();
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
+            throw new \yii\web\HttpException(401);
+        }
+
+        $AvatarUpload->imageFile = UploadedFile::getInstanceByName('file');
+        $path = $AvatarUpload->upload($idSistema);
+        if($path){
+            Avatar::setTodosNaoAtual($idSistema);
+
+            $avatar->avt_caminho = $path;
+            $avatar->avt_atual = 1;
+            $avatar->avt_data = (string) strtotime(date('d-m-Y H:i:s'));
+            $avatar->avt_sys_id = $idSistema;
+
+            if($avatar->save()){
+                return $this->sendJson([
+                    'file' => ControllerHelper::pathToSystemAvatar() . $avatar->avt_caminho
+                ]);
+            }else{
+                return $this->sendJson([
+                    'error' => $avatar->getErrors(),
+                ]);
+            }
+        }else{
+            $errors = $AvatarUpload->getFirstErrors();
+            return $this->sendJson([
+                'error' => reset($errors),
+            ]);
+        }
+    }
+
+    public function actionUploadCapa(){
+        $token = Yii::$app->request->post('token');
+        $idSistema = Yii::$app->request->post('idSistema');
+
+        $CoverUpload = new CoverUpload();
+        $capa = new Cover();
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
+            throw new \yii\web\HttpException(401);
+        }
+
+        $CoverUpload->imageFile = UploadedFile::getInstanceByName('file');
+        $path = $CoverUpload->upload($idSistema);
+        if($path){
+            Cover::setTodosNaoAtual($idSistema);
+
+            $capa->cov_caminho = $path;
+            $capa->cov_atual = 1;
+            $capa->cov_data = (string) strtotime(date('d-m-Y H:i:s'));
+            $capa->cov_sys_id = $idSistema;
+
+            if($capa->save()){
+                return $this->sendJson([
+                    'file' => ControllerHelper::pathToSystemCover() . $capa->cov_caminho
+                ]);
+            }else{
+                return $this->sendJson([
+                    'error' => $capa->getErrors(),
+                ]);
+            }
+        }else{
+            $errors = $CoverUpload->getFirstErrors();
+            return $this->sendJson([
+                'error' => reset($errors),
+            ]);
+        }
     }
 }

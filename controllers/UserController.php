@@ -11,6 +11,7 @@ use app\models\AuthToken;
 use app\models\System;
 use app\controllers\SistemaController;
 use app\models\Servicos;
+use app\models\Avatar;
 
 class UserController extends Controller{
 
@@ -111,17 +112,26 @@ class UserController extends Controller{
         if(!empty($access_token) && AuthToken::validateToken($access_token)){
             $identity = AuthToken::findUserByAccessToken($access_token, true);
             $system = System::findByClienteId($identity->cli_id);
+
             $servicos = SistemaController::buscarServicosPorSistema($system['sys_id']);
 
             return $this->sendJson([
                 'user_data' => $identity,
                 'system' => [
                     'data' => $system,
-                    'servicos' => Servicos::formatarParaRetorno($servicos)
+                    'servicos' => Servicos::formatarParaRetorno($servicos),
                 ],
                 'access_token' => $access_token
             ]);
         }else{
+            throw new \yii\web\HttpException(401);
+        }
+    }
+
+    public function actionIsLogged(){
+        $token = Yii::$app->request->post('access_token');
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
             throw new \yii\web\HttpException(401);
         }
     }

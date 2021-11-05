@@ -1,7 +1,11 @@
 <?php
 
 namespace app\models;
+
+use app\helpers\ControllerHelper;
 use Yii;
+use yii\web\UploadedFile;
+use app\models\Avatar;
 
 /**
  * This is the model class for table "system".
@@ -23,9 +27,19 @@ use Yii;
  * @property int $sys_cliente
  * @property string $sys_cnpj
  * @property string $sys_capa
+ * 
+ * 
+ * @property Avatar[] $avatars 
+ * @property Funcionarios[] $funcionarios 
+ * @property Servicos[] $servicos 
+ * @property Clientes $sysCliente 
+ * @property UrlCadastroFuncionarios[] $urlCadastroFuncionarios 
  */
 class System extends \yii\db\ActiveRecord
 {
+
+    public $avatar;
+
     /**
      * {@inheritdoc}
      */
@@ -46,6 +60,7 @@ class System extends \yii\db\ActiveRecord
             [['sys_nome_empresa', 'sys_cnpj', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_bairro', 'sys_endereco', 'sys_complemento', 'sys_logo', 'sys_capa'], 'string', 'max' => 150],
             [['sys_uf'], 'string', 'max' => 2],
             [['sys_numero'], 'string', 'max' => 3],
+            [['avatar'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
         ];
     }
 
@@ -74,16 +89,82 @@ class System extends \yii\db\ActiveRecord
     }
 
     public static function findByClienteId($id){
-        return self::find()->where(['sys_cliente' => $id])
-               ->andWhere(['!=','sys_excluido', 1])->one();
+        $sistema = self::find()->where(['sys_cliente' => $id])
+        ->andWhere(['!=','sys_excluido', 1])->asArray()->one();
+
+        $sistema['sys_logo'] = !empty(Avatar::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemAvatar() . Avatar::atual($sistema['sys_id']) : $sistema['sys_logo'];
+        $sistema['sys_capa'] = !empty(Cover::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemCover() . Cover::atual($sistema['sys_id']) : $sistema['sys_capa'];
+
+        return $sistema;
+    }
+
+    public static function findByDominio($dominio){
+        $sistema = self::find()->where(['sys_dominio' => $dominio])
+        ->andWhere(['sys_excluido' => 0])->asArray()->one();
+
+        if(!empty($sistema)){
+            $sistema['sys_logo'] = !empty(Avatar::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemAvatar() . Avatar::atual($sistema['sys_id']) : $sistema['sys_logo'];
+            $sistema['sys_capa'] = !empty(Cover::atual($sistema['sys_id'])) ? ControllerHelper::pathToSystemCover() . Cover::atual($sistema['sys_id']) : $sistema['sys_capa'];
+
+            return $sistema;
+        }else{
+            return false;
+        }
+
+
+    }
+
+    /**
+    * Gets query for [[Avatars]].
+    *
+    * @return \yii\db\ActiveQuery|AvatarQuery
+    */
+    public function getAvatars(){
+        return $this->hasMany(Avatar::className(), ['avt_sys_id' => 'sys_id']);
+    }
+
+   /**
+    * Gets query for [[Funcionarios]].
+    *
+    * @return \yii\db\ActiveQuery|FuncionariosQuery
+    */
+    public function getFuncionarios(){
+        return $this->hasMany(Funcionarios::className(), ['fun_sys_id' => 'sys_id']);
+    }
+
+   /**
+    * Gets query for [[Servicos]].
+    *
+    * @return \yii\db\ActiveQuery|ServicosQuery
+    */
+    public function getServicos(){
+        return $this->hasMany(Servicos::className(), ['svs_system' => 'sys_id']);
+    }
+
+   /**
+    * Gets query for [[SysCliente]].
+    *
+    * @return \yii\db\ActiveQuery|ClientesQuery
+    */
+    public function getSysCliente(){
+        return $this->hasOne(Clientes::className(), ['cli_id' => 'sys_cliente']);
+    }
+
+   /**
+    * Gets query for [[UrlCadastroFuncionarios]].
+    *
+    * @return \yii\db\ActiveQuery|UrlCadastroFuncionariosQuery
+    */
+    public function getUrlCadastroFuncionarios(){
+        return $this->hasMany(UrlCadastroFuncionarios::className(), ['ucf_system' => 'sys_id']);
     }
 
     /**
      * {@inheritdoc}
      * @return queries\SystemQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
+    */
+    public static function find(){
         return new queries\SystemQuery(get_called_class());
     }
+
 }
