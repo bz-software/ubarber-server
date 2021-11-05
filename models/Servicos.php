@@ -15,8 +15,8 @@ use Yii;
  * @property int $svs_ativo
  * @property int $svs_system
  * @property string|null $svs_descricao
- * @property int $sys_excluido
- * @property string $sys_data_inclusao
+ * @property int $svs_excluido
+ * @property string $svs_data_inclusao
  *
  * @property System $svsSystem
  */
@@ -38,9 +38,9 @@ class Servicos extends \yii\db\ActiveRecord
         return [
             [['svs_nome', 'svs_preco', 'svs_duracao', 'svs_ativo', 'svs_system'], 'required', 'message'=> 'Campo obrigatório'],
             [['svs_preco'], 'number'],
-            [['svs_retorno', 'svs_ativo', 'svs_system', 'sys_excluido'], 'integer'],
+            [['svs_retorno', 'svs_ativo', 'svs_system', 'svs_excluido'], 'integer'],
             [['svs_descricao'], 'string'],
-            [['sys_data_inclusao'], 'safe'],
+            [['svs_data_inclusao'], 'safe'],
             [['svs_nome', 'svs_duracao'], 'string', 'max' => 150],
             [['svs_system'], 'exist', 'skipOnError' => true, 'targetClass' => System::className(), 'targetAttribute' => ['svs_system' => 'sys_id']],
         ];
@@ -60,8 +60,8 @@ class Servicos extends \yii\db\ActiveRecord
             'svs_ativo' => 'Svs Ativo',
             'svs_system' => 'Svs System',
             'svs_descricao' => 'Sys Descricao',
-            'sys_excluido' => 'Sys Excluido',
-            'sys_data_inclusao' => 'Sys Data Inclusao',
+            'svs_excluido' => 'Sys Excluido',
+            'svs_data_inclusao' => 'Sys Data Inclusao',
         ];
     }
 
