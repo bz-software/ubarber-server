@@ -5,7 +5,7 @@ use yii\base\Model;
 use yii\web\UploadedFile;
 use app\helpers\ControllerHelper;
 
-class AvatarUpload extends Model
+class CoverUpload extends Model
 {
     /**
      * @var UploadedFile
@@ -32,7 +32,7 @@ class AvatarUpload extends Model
     {  
         $path = $idSistema . '_' . md5(date('d-m-Y H:i:s')) . '.' . $this->imageFile->extension;
         if ($this->validate()) {
-            $this->imageFile->saveAs(ControllerHelper::pathToSystemAvatar(true) . $path , false);
+            $this->imageFile->saveAs(ControllerHelper::pathToSystemCover(true) . $path , false);
             return $path;
         } else {
             return false;

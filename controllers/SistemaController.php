@@ -12,6 +12,8 @@ use app\models\Servicos;
 use app\helpers\Formatter;
 use app\models\Avatar;
 use app\models\AvatarUpload;
+use app\models\Cover;
+use app\models\CoverUpload;
 use yii\web\UploadedFile;
 use app\models\UrlCadastroFuncionarios;
 
@@ -346,21 +348,56 @@ class SistemaController extends Controller{
 
             if($avatar->save()){
                 return $this->sendJson([
-                    'message' => 'done'
+                    'file' => ControllerHelper::pathToSystemAvatar() . $avatar->avt_caminho
                 ]);
             }else{
                 return $this->sendJson([
                     'error' => $avatar->getErrors(),
                 ]);
             }
-            
+        }else{
+            $errors = $AvatarUpload->getFirstErrors();
+            return $this->sendJson([
+                'error' => reset($errors),
+            ]);
+        }
+    }
+
+    public function actionUploadCapa(){
+        $token = Yii::$app->request->post('token');
+        $idSistema = Yii::$app->request->post('idSistema');
+
+        $CoverUpload = new CoverUpload();
+        $capa = new Cover();
+
+        if(!empty($token) && !AuthToken::validateToken($token)){
+            throw new \yii\web\HttpException(401);
         }
 
-        
+        $CoverUpload->imageFile = UploadedFile::getInstanceByName('file');
+        $path = $CoverUpload->upload($idSistema);
+        if($path){
+            Cover::setTodosNaoAtual($idSistema);
 
-        // return $this->sendJson([
-        //     'data' => Yii::$app->request->post(),
-        //     'file' => $_FILES
-        // ]);
+            $capa->cov_caminho = $path;
+            $capa->cov_atual = 1;
+            $capa->cov_data = (string) strtotime(date('d-m-Y H:i:s'));
+            $capa->cov_sys_id = $idSistema;
+
+            if($capa->save()){
+                return $this->sendJson([
+                    'file' => ControllerHelper::pathToSystemCover() . $capa->cov_caminho
+                ]);
+            }else{
+                return $this->sendJson([
+                    'error' => $capa->getErrors(),
+                ]);
+            }
+        }else{
+            $errors = $CoverUpload->getFirstErrors();
+            return $this->sendJson([
+                'error' => reset($errors),
+            ]);
+        }
     }
 }
