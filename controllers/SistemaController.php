@@ -79,13 +79,15 @@ class SistemaController extends Controller{
             if(!$Clientes->errors && !$Sistema->errors){  
                 $Clientes->cli_senha = password_hash($Clientes->cli_senha, PASSWORD_DEFAULT);
                 $Clientes->cli_primeiro_nome = Clientes::getPrimeiroNome($Clientes->cli_nome);
-                $Clientes->cli_avatar = "imgs/avatar/default.jpg";
-                $Sistema->sys_capa = "imgs/cover/default.jpg";
-                $Sistema->sys_logo = "imgs/avatar/default-system.jpg";
+                $Clientes->cli_avatar = "imgs/user/avatar/default.jpg";
+                $Sistema->sys_capa = "imgs/system/cover/default.jpg";
+                $Sistema->sys_logo = "imgs/system/avatar/default.jpg";
                 $Clientes->save();
             
                 $Sistema->sys_cliente = $Clientes->cli_id;
                 $Sistema->save();
+
+                $this->setServicosPadroes($Sistema->sys_id);
 
                 return $this->sendJson( [
                     'message' => ['200'],
@@ -103,14 +105,30 @@ class SistemaController extends Controller{
 
     }
 
+    private function setServicosPadroes($idSistema){
+        $servicos = Servicos::servicosPadroes($idSistema);
+
+        foreach($servicos as $servico){
+            $Servicos = new Servicos();
+
+            $Servicos->attributes = $servico;
+            $Servicos->save();
+        }
+    }
+
     public function actionBuscar(){
         $dominio = strtolower(Yii::$app->request->post('domain')); 
-        $sistema = System::find()
-                ->where(['sys_dominio' => $dominio])
-                ->andWhere(['sys_excluido' => 0])
-                ->one();
-        if(!empty($sistema)){
-            return $this->sendJson(['sysData' => $sistema]);
+        $system = System::findByDominio($dominio);
+
+        if(!empty($system)){
+            $servicos = SistemaController::buscarServicosPorSistema($system['sys_id']);
+
+            return $this->sendJson([
+                'system' => [
+                    'data' => $system,
+                    'servicos' => Servicos::formatarParaRetorno($servicos),
+                ],
+            ]);
         }else{
             return  $this->sendJson(['error' => 'not-found']);
         }
@@ -319,7 +337,7 @@ class SistemaController extends Controller{
     public static function buscarServicosPorSistema($id){
         return Servicos::find()
                        ->where(['svs_system' => $id])
-                       ->andWhere(['=', 'sys_excluido', 0])
+                       ->andWhere(['=', 'svs_excluido', 0])
                        ->orderBy(['svs_id' => SORT_DESC])
                        ->all();
     }
