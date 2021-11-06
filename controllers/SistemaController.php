@@ -84,7 +84,7 @@ class SistemaController extends Controller{
                 $Sistema->sys_logo = "imgs/system/avatar/default.jpg";
                 $Funcionarios->save();
             
-                $Sistema->sys_funcionario = $Funcionarios->fun_id;
+                $Sistema->sys_cliente = $Funcionarios->fun_id;
                 $Sistema->save();
 
                 $this->setServicosPadroes($Sistema->sys_id);
