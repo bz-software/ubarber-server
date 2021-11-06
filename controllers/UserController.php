@@ -112,6 +112,7 @@ class UserController extends Controller{
         if(!empty($access_token) && AuthToken::validateToken($access_token)){
             $identity = AuthToken::findUserByAccessToken($access_token, true);
             $system = System::findByFuncionarioId($identity->fun_id);
+            $systems = System::findAllNaoAtivos($system['sys_id'], $identity['fun_id']);
 
             $servicos = SistemaController::buscarServicosPorSistema($system['sys_id']);
 
@@ -121,6 +122,7 @@ class UserController extends Controller{
                     'data' => $system,
                     'servicos' => Servicos::formatarParaRetorno($servicos),
                 ],
+                'systems' => $systems,
                 'access_token' => $access_token
             ]);
         }else{
