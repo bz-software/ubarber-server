@@ -418,4 +418,21 @@ class SistemaController extends Controller{
             ]);
         }
     }
+
+    public function actionChange(){
+        $idSistema = Yii::$app->request->post('idSistema');
+        $idUser = Yii::$app->request->post('idUser');
+
+        System::setPrincipal($idSistema, $idUser);
+
+        $system = System::findByFuncionarioId($idUser);
+        $systems = System::findAllNaoAtivos($system['sys_id'], $idUser);
+
+        return $this->sendJson([
+            'system' => [
+                'data' => $system,
+            ],
+            'systems' => $systems,
+        ]);
+    }
 }
