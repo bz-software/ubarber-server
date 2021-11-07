@@ -28,6 +28,8 @@ use app\models\Avatar;
  * @property string $sys_cnpj
  * @property string $sys_capa
  * @property int $sys_principal
+ * @property string|null $sys_descricao
+ * @property int|null $sys_categoria
  * 
  * 
  * @property Avatar[] $avatars 
@@ -36,6 +38,7 @@ use app\models\Avatar;
  * @property Servicos[] $servicos 
  * @property Funcionarios $sysCliente 
  * @property UrlCadastroFuncionarios[] $urlCadastroFuncionarios 
+ * @property CategoriaSystem $sysCategoria
  */
 class System extends \yii\db\ActiveRecord
 {
@@ -58,11 +61,15 @@ class System extends \yii\db\ActiveRecord
         return [
             [['sys_nome_empresa', 'sys_cnpj', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_uf', 'sys_bairro', 'sys_endereco'], 'required', 'message' => 'Campo obrigatório'],
             [['sys_data_inicio'], 'safe'],
-            [['sys_excluido', 'sys_principal'], 'integer'],
+            [['sys_excluido', 'sys_principal', 'sys_categoria'], 'integer'],
+            [['sys_descricao'], 'string'],
             [['sys_nome_empresa', 'sys_cnpj', 'sys_dominio', 'sys_telefone', 'sys_cep', 'sys_cidade', 'sys_bairro', 'sys_endereco', 'sys_complemento', 'sys_logo', 'sys_capa'], 'string', 'max' => 150],
             [['sys_uf'], 'string', 'max' => 2],
             [['sys_numero'], 'string', 'max' => 3],
+            [['sys_dominio'], 'unique', 'message' => 'Esse nome de usuário já está sendo usado'],
             [['avatar'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            [['sys_categoria'], 'exist', 'skipOnError' => true, 'targetClass' => CategoriaSystem::className(), 'targetAttribute' => ['sys_categoria' => 'cat_id']],
+            [['sys_cliente'], 'exist', 'skipOnError' => true, 'targetClass' => Funcionarios::className(), 'targetAttribute' => ['sys_cliente' => 'fun_id']]
         ];
     }
 
@@ -87,7 +94,9 @@ class System extends \yii\db\ActiveRecord
             'sys_data_inicio' => 'dataInicio',
             'sys_excluido' => 'excluido',
             'sys_capa' => 'capa',
-            'sys_principal' => 'principal'
+            'sys_principal' => 'principal',
+            'sys_descricao' => 'descricao',
+            'sys_categoria' => 'categoria',
         ];
     }
 
@@ -192,6 +201,17 @@ class System extends \yii\db\ActiveRecord
     public function getUrlCadastroFuncionarios(){
         return $this->hasMany(UrlCadastroFuncionarios::className(), ['ucf_system' => 'sys_id']);
     }
+
+    /**
+    * Gets query for [[SysCategoria]].
+    *
+    * @return \yii\db\ActiveQuery|CategoriaSystemQuery
+    */
+    public function getSysCategoria()
+    {
+        return $this->hasOne(CategoriaSystem::className(), ['cat_id' => 'sys_categoria']);
+    }
+
 
     /**
      * {@inheritdoc}
