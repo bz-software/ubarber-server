@@ -12,6 +12,7 @@ use app\models\Servicos;
 use app\helpers\Formatter;
 use app\models\Avatar;
 use app\models\AvatarUpload;
+use app\models\CategoriaSystem;
 use app\models\Cover;
 use app\models\CoverUpload;
 use yii\web\UploadedFile;
@@ -418,4 +419,67 @@ class SistemaController extends Controller{
             ]);
         }
     }
+
+    public function actionChange(){
+        $idSistema = Yii::$app->request->post('idSistema');
+        $idUser = Yii::$app->request->post('idUser');
+
+        System::setPrincipal($idSistema, $idUser);
+
+        $system = System::findByFuncionarioId($idUser);
+        $systems = System::findAllNaoAtivos($system['sys_id'], $idUser);
+
+        return $this->sendJson([
+            'system' => [
+                'data' => $system,
+            ],
+            'systems' => $systems,
+        ]);
+    }
+
+    public function actionEditar(){
+        return $this->sendJson([
+            'categorias' => CategoriaSystem::getAll(),
+        ]);
+    }
+
+    public function actionAutoSave(){
+        $token = Yii::$app->request->post('token');
+        $idSistema = Yii::$app->request->post('idSistema');
+        if(!empty($token) && !AuthToken::validateToken($token))
+            throw new \yii\web\HttpException(401);
+            
+        $system = System::findOne($idSistema);
+
+        if(Yii::$app->request->post('nomeEmpresa')){
+            $nomeEmpresa = Yii::$app->request->post('nomeEmpresa');
+            $system->sys_nome_empresa = $nomeEmpresa;
+        }
+
+        if(Yii::$app->request->post('nomeUsuario')){
+            $nomeUsuario = Yii::$app->request->post('nomeUsuario');
+            $system->sys_dominio = $nomeUsuario;
+        }
+
+        if(Yii::$app->request->post('descricao')){
+            $descricao = Yii::$app->request->post('descricao');
+            $system->sys_descricao = $descricao;
+
+            $sistemaPorDominio = System::find()->where(['sys_dominio' => $descricao])->one();
+
+            if(!empty($sistemaPorDominio)){
+                $system->addError('sys_dominio', "Nome de usuário não disponível");
+            }
+        }
+
+        if($system->validate()){
+            $system->save();
+            throw new \yii\web\HttpException(200);
+        }else{
+            return $this->sendJson([
+                'error' => $system->getFirstErrors()
+            ]);
+        }
+    }
 }
+
