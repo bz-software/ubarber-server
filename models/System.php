@@ -35,7 +35,7 @@ use app\models\Avatar;
  * @property Avatar[] $avatars 
  * @property Funcionarios[] $funcionarios 
  * @property Servicos[] $servicos 
- * @property Clientes $sysCliente 
+ * @property Funcionarios $sysCliente 
  * @property UrlCadastroFuncionarios[] $urlCadastroFuncionarios 
  * @property CategoriaSystem $sysCategoria
  */
@@ -99,7 +99,7 @@ class System extends \yii\db\ActiveRecord
         ];
     }
 
-    public static function findByClienteId($id){
+    public static function findByFuncionarioId($id){
         $sistema = self::find()->where(['sys_cliente' => $id])
         ->andWhere(['!=','sys_excluido', 1])->asArray()->one();
 
@@ -155,10 +155,10 @@ class System extends \yii\db\ActiveRecord
    /**
     * Gets query for [[SysCliente]].
     *
-    * @return \yii\db\ActiveQuery|ClientesQuery
+    * @return \yii\db\ActiveQuery|FuncionariosQuery
     */
     public function getSysCliente(){
-        return $this->hasOne(Clientes::className(), ['cli_id' => 'sys_cliente']);
+        return $this->hasOne(Funcionarios::className(), ['fun_id' => 'sys_cliente']);
     }
 
    /**
