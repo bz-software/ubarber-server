@@ -37,7 +37,7 @@ class Funcionarios extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['fun_nome', 'fun_senha', 'fun_email', 'fun_primeiro_nome'], 'required', 'message' => 'Campo obrigatório'],
+            [['fun_nome', 'fun_senha', 'fun_email'], 'required', 'message' => 'Campo obrigatório'],
             [['fun_excluido'], 'integer'],
             [['fun_data_criacao', 'fun_data_altera'], 'safe'],
             [['fun_nome', 'fun_telefone', 'fun_email', 'fun_avatar', 'fun_primeiro_nome',], 'string', 'max' => 150],
