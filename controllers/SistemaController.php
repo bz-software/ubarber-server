@@ -15,6 +15,8 @@ use app\models\AvatarUpload;
 use app\models\CategoriaSystem;
 use app\models\Cover;
 use app\models\CoverUpload;
+use app\models\RedesSociais;
+use app\models\RedesSociaisSystem;
 use yii\web\UploadedFile;
 use app\models\UrlCadastroFuncionarios;
 
@@ -438,8 +440,11 @@ class SistemaController extends Controller{
     }
 
     public function actionEditar(){
+        $idSistema = Yii::$app->request->post('idSistema');
+
         return $this->sendJson([
             'categorias' => CategoriaSystem::getAll(),
+            'redesSociais' => RedesSociais::buscarDisponivel($idSistema)
         ]);
     }
 
@@ -464,12 +469,11 @@ class SistemaController extends Controller{
         if(Yii::$app->request->post('descricao')){
             $descricao = Yii::$app->request->post('descricao');
             $system->sys_descricao = $descricao;
-
-            $sistemaPorDominio = System::find()->where(['sys_dominio' => $descricao])->one();
-
-            if(!empty($sistemaPorDominio)){
-                $system->addError('sys_dominio', "Nome de usuário não disponível");
-            }
+        }
+        
+        if(Yii::$app->request->post('categoria')){
+            $categoria = Yii::$app->request->post('categoria');
+            $system->sys_categoria = $categoria;
         }
 
         if($system->validate()){
@@ -478,6 +482,33 @@ class SistemaController extends Controller{
         }else{
             return $this->sendJson([
                 'error' => $system->getFirstErrors()
+            ]);
+        }
+    }
+
+    public function actionInserirRedeSocial(){
+        $token = Yii::$app->request->post('token');
+        if(!empty($token) && !AuthToken::validateToken($token))
+            throw new \yii\web\HttpException(401);  
+        
+        
+        $idSistema = Yii::$app->request->post('idSistema');
+        $redeSocial = Yii::$app->request->post('redeSocial');
+
+        $RedesSociaisSystem = new RedesSociaisSystem();
+        $RedesSociaisSystem->rss_sys_id = $idSistema;
+        $RedesSociaisSystem->rss_res_id = $redeSocial['rss_res_id'];
+        $RedesSociaisSystem->rss_url = $redeSocial['rss_url'];
+
+        if(!$RedesSociaisSystem->validate()){
+            return $this->sendJson([
+                'messages' => $RedesSociaisSystem->getFirstErrors()
+            ]);
+        }else{
+            $RedesSociaisSystem->save();
+
+            return $this->sendJson([
+                'status' => 'ok'
             ]);
         }
     }
