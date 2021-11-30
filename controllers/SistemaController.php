@@ -444,7 +444,8 @@ class SistemaController extends Controller{
 
         return $this->sendJson([
             'categorias' => CategoriaSystem::getAll(),
-            'redesSociais' => RedesSociais::buscarDisponivel($idSistema)
+            'redesSociais' => RedesSociais::buscarDisponivel($idSistema),
+            'redesSociaisSystem' => RedesSociaisSystem::buscarPorSistema($idSistema)
         ]);
     }
 
@@ -508,7 +509,8 @@ class SistemaController extends Controller{
             $RedesSociaisSystem->save();
 
             return $this->sendJson([
-                'status' => 'ok'
+                'redesSociais' => RedesSociais::buscarDisponivel($idSistema),
+                'redesSociaisSystem' => RedesSociaisSystem::buscarPorSistema($idSistema)
             ]);
         }
     }

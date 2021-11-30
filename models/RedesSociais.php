@@ -46,7 +46,7 @@ class RedesSociais extends \yii\db\ActiveRecord
     }
 
     public static function buscarDisponivel($idSistema){
-        return self::find()->where(['NOT IN', 'res_id', RedesSociaisSystem::find()->where(['rss_sys_id' => $idSistema])->asArray()->all()])->all();
+        return self::find()->where(['NOT IN', 'res_id', RedesSociaisSystem::getIdFromArray( RedesSociaisSystem::find()->select('rss_res_id')->where(['rss_sys_id' => $idSistema])->asArray()->all() ) ])->asArray()->all();
     }
 
     /**

@@ -47,6 +47,23 @@ class RedesSociaisSystem extends \yii\db\ActiveRecord
         ];
     }
 
+    public static function getIdFromArray($dados){
+        $ids = [];
+        foreach($dados as $dado){
+            array_push($ids, $dado['rss_res_id']);
+        }
+
+        return implode(',', $ids);
+    }
+
+    public static function buscarPorSistema($idSistema){
+        return self::find()
+        ->innerJoinWith('redes_sociais', 'res_id = rss_res_id')
+        ->where(['rss_sys_id' => $idSistema])->all();
+
+        // adicionar a relação para buscar o nome da rede social pelas redes sociais do sistema
+    }
+
     /**
      * {@inheritdoc}
      * @return queries\RedesSociaisSystemQuery the active query used by this AR class.
